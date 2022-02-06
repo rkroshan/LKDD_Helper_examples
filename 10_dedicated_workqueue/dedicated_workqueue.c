@@ -1,12 +1,14 @@
 #include <linux/init.h>
 #include <linux/module.h>
-#include <linux/sched.h>
 #include <linux/slab.h>
 #include <linux/workqueue.h>
 
 #define LEN 7
 
-/*decalre data struct*/
+/*create workqueue struct */
+static struct workqueue_struct *wrkqueue;
+
+/*declare data struct*/
 struct work_data{
 	/*declare workstruct*/
 	struct work_struct wrk;
@@ -23,18 +25,21 @@ static void work_handler(struct work_struct *work)
 	/*get the work_data structure pointer*/
 	wrk_data = container_of(work,struct work_data,wrk);
 	pr_info("%s retrived data : %s\n",__FUNCTION__,wrk_data->attr);
-	kfree(wrk_data);	
+	kfree(wrk_data);
+	
 }
 
-static int __init workqueue_shared_kernel_queue_init(void)
+static int __init dedicated_workqueue_init(void)
 {
 	/*pre initialization*/
 	int i;
 	struct work_data *wrk_data;
 	char tmp[LEN] = "ROSHAN";
 
-	pr_info("workqueue_shared_kernel_queue example");
+	pr_info("dedicated_workqueue example");
 
+	/*allocate memory for workqueue*/
+	wrkqueue = create_singlethread_workqueue("thread_name_cool");
 	/*dynamically allocate work_data struct*/
 	wrk_data = (struct work_data*)kmalloc(sizeof(*wrk_data),GFP_KERNEL);
 	/*allocate memory for attr*/
@@ -47,20 +52,27 @@ static int __init workqueue_shared_kernel_queue_init(void)
 
 	/*initialize and schedule the work*/
 	INIT_WORK(&(wrk_data->wrk),work_handler);
-	schedule_work(&(wrk_data->wrk));
+	/*queue the work*/
+	queue_work(wrkqueue,&(wrk_data->wrk));
 
 	return 0;
 }
 
-static void __exit workqueue_shared_kernel_queue_exit(void)
+static void __exit dedicated_workqueue_exit(void)
 {
+	/*flush the workqueue as we know we are only using it so no other work be pending on our queue*/
+	pr_info("%s workqueue flushed\n",__FUNCTION__);
+	flush_workqueue(wrkqueue);
+	/*destory the wrkqueue*/
+	pr_info("%s workqueue destoryed\n",__FUNCTION__);
+	destroy_workqueue(wrkqueue);
 
-	pr_info("Bye bye world\n");
+	pr_info("Bye bye world %s\n",__FUNCTION__);
 }
 
-module_init(workqueue_shared_kernel_queue_init);
-module_exit(workqueue_shared_kernel_queue_exit);
-MODULE_DESCRIPTION("workqueue_shared_kernel_queue example code");
+module_init(dedicated_workqueue_init);
+module_exit(dedicated_workqueue_exit);
+MODULE_DESCRIPTION("dedicated_workqueue example code");
 MODULE_AUTHOR("Roshan Kumar <rkroshan.1999@gmail.com>");
 MODULE_INFO(board,"Beaglebone black rev3");
 MODULE_LICENSE("GPL");
