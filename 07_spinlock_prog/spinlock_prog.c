@@ -43,7 +43,7 @@ static int __init spinlock_prog_init(void)
 	int i;
 	unsigned long flags;
 
-	pr_info("MUTEX PROG EXAMPLE\n");
+	pr_info("SPINLOCK PROG EXAMPLE\n");
 	INIT_WORK(&wrk,work_handler);
 	schedule_work(&wrk);
 
