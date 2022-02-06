@@ -8,7 +8,7 @@
 static DECLARE_WAIT_QUEUE_HEAD(my_wq);
 static int condition=0;
 
-/*declare workqueue*/
+/*declare workstruct*/
 static struct work_struct wrk;
 
 /*define work handler*/
