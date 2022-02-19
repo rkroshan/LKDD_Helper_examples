@@ -1,0 +1,7 @@
+
+/ {
+		pltdev1 : plt-dev001 {
+			compatible = "pltfm,dev001";
+		};
+};
+/*include it in bb.org dts*/
