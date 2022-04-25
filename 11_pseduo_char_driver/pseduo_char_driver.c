@@ -145,7 +145,7 @@ static loff_t psd_llseek(struct file *filp, loff_t offset, int whence)
 			filp->f_pos = temp;
 			break;
 		case SEEK_END:
-			temp = xprv_data->size + offset;
+			temp = xprv_data->size - 1 + offset;
 			if((temp > xprv_data->size -1) || (temp < 0))
 				return -EINVAL;
 			filp->f_pos = temp;
